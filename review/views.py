@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
+
 def home(request):
     blog=movies.objects.all()
     return render(request,'review/home.html',{'blog':blog})
@@ -44,7 +45,6 @@ def loginuser(request):
             login(request, user)
             return redirect('home')
 
-# @login_required
 def logoutuser(request):
     if request.method == 'POST':
         logout(request)
@@ -52,11 +52,8 @@ def logoutuser(request):
     else :
         return redirect('home')
 
-
-# -------------------------------
 def all_blogs(request,key):
     blogs=movies.objects.all()
-    # key =request.GET.get('key','chetan')
     u=userinputs.objects.all()
     movie = get_object_or_404(movies, m_name=key)
     r=movie.rating
@@ -67,16 +64,12 @@ def genre(request,key):
     blogs=movies.objects.all()
     return render(request,'review/genre.html',{'blogs':blogs,'key':key})
 
-
-
-
-
 def comments(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             cby=request.user.username
             con= request.POST['con']
-            ron=request.POST['star']
+            rating=request.POST['star']
             
             c= request.POST['c']
             if len(c)>100:
@@ -84,12 +77,11 @@ def comments(request):
             elif len(c)<1:
                 messages.error(request, "Comments can'tmovie_name be empty!!")
             else:
-                userinputs(m_name=con,u_name=cby,review=c,rating=ron).save()
+                userinputs(m_name=con,u_name=cby,review=c,rating=rating).save()
                 messages.success(request, "your comments saved successfully !")
     else:
         messages.error(request, "You must be logged in for rating!!")
     blogs=movies.objects.all()
-        # key =request.GET.get('key','chetan')
     u=userinputs.objects.all()
     key=request.POST['con']
     movie = get_object_or_404(movies, m_name=key)
@@ -100,16 +92,13 @@ def comments(request):
     
     
     
-from django.shortcuts import render
-from .models import movies  # Import your model
 
 def search_view(request):
-    query = request.GET.get('q')  # Get the search query from the form
+    query = request.GET.get('q')  
 
     if query:
-        # Use the query to search your movies model and retrieve relevant results
         results = movies.objects.filter(m_name__icontains=query).union(
-            movies.objects.filter(genre__icontains=query)).union(movies.objects.filter(release_year__icontains=query))  # Modify this to fit your search criteria
+            movies.objects.filter(genre__icontains=query)).union(movies.objects.filter(release_year__icontains=query)) 
 
         context = {
             'results': results,
@@ -117,10 +106,7 @@ def search_view(request):
         }
         return render(request, 'review/search_results.html', context)
 
-    return redirect(reverse('home'))    # Handle the case where no results are found
-
-from django.shortcuts import render
-from .models import movies
+    return redirect(reverse('home'))    
 
 def sortby(request,key):
     
@@ -136,6 +122,6 @@ def sortby(request,key):
         movies_list = movies.objects.order_by('-release_year')
     context = {
         'movies_list': movies_list,
-        'sort_by': key,  # Pass the selected sorting option to the template
+        'sort_by': key, 
     }
     return render(request, 'review/sortby.html', context)
